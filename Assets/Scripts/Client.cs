@@ -9,7 +9,7 @@ using UnityEngine;
 
 public class Client
 {
-    public string m_IPAdress = "127.0.0.1";
+    public string m_IPAdress = "127.0.0.1"; //kk
     public const int outPort = 6000;
     public const int inPort = 7000;
     
