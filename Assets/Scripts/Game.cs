@@ -27,11 +27,11 @@ public class Game {
 
     //private static volatile List<CoinPile> plunderCoinPileList;
 
-    private  List<Point> obstacles;
-    private  List<Point> brickLocations;
-    private  List<BrickWall> brickWalls;
-    private  List<Point> water;
-    private  List<Bullet> activeBullets;
+    private  List<Point> obstacles=new List<Point>();
+    private  List<Point> brickLocations=new List<Point>();
+    private  List<BrickWall> brickWalls= new List<BrickWall>();
+    private  List<Point> water= new List<Point>();
+    private  List<Bullet> activeBullets= new List<Bullet>();
 
     private int maxPlayerNumber;
     private int minPlayerNumber = 1;
@@ -47,6 +47,21 @@ public class Game {
     private Player playerSelf;
     private Point playerPos=new Point(0,0);
 
+    public List<Point> getWaterCoor() {
+        return this.water;
+    }
+    public List<Point> getStoneCoor()
+    {
+        return this.obstacles;
+    }
+    public List<Point> getBricksCoor()
+    {
+        return this.brickLocations;
+    }
+    public List<BrickWall> getBricks()
+    {
+        return this.brickWalls;
+    }
     public void addWater(Point loc) {
         water.Add(loc);
     }
