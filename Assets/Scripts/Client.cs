@@ -9,27 +9,29 @@ using UnityEngine;
 
 public class Client
 {
-    public string m_IPAdress = "127.0.0.1"; //kk
-    public const int outPort = 6000;
-    public const int inPort = 7000;
-    
+    public string m_IPAdress = "127.0.0.1"; //Server ip address
+    public const int outPort = 6000;        //outgoing port number
+    public const int inPort = 7000;         //incoming port number
+
     private Socket outSocket;
 
-    private NetworkStream serverStream; //Stream - incoming        
-    private TcpListener listener; //To listen to the clinets        
-    public string reply = ""; //The message to be written
+    private NetworkStream serverStream;     //Stream - incoming        
+    private TcpListener listener;           //To listen to the clinets        
+    public string reply = "";               //The message to be written
 
     private void Close()
     {
         outSocket.Close();
     }
-    private void Connect() {
+    private void Connect()
+    {
         System.Net.IPAddress remoteIPAddress = System.Net.IPAddress.Parse(m_IPAdress);
         outSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         outSocket.Connect(new System.Net.IPEndPoint(remoteIPAddress, outPort));
 
     }
-    public void Listen() {
+    public void Listen()    //listening to the server
+    {                               
         System.Net.IPAddress remoteIPAddress = System.Net.IPAddress.Parse(m_IPAdress);
 
         bool errorOcurred = false;
@@ -51,8 +53,6 @@ public class Client
                     //To read from socket create NetworkStream object associated with socket
                     this.serverStream = new NetworkStream(connection);
 
-                    SocketAddress sockAdd = connection.RemoteEndPoint.Serialize();
-                    string s = connection.RemoteEndPoint.ToString();
                     List<Byte> inputStr = new List<byte>();
 
                     int asw = 0;
@@ -65,7 +65,7 @@ public class Client
                     reply = Encoding.UTF8.GetString(inputStr.ToArray());
                     this.serverStream.Close();
 
-                    ThreadPool.QueueUserWorkItem(new WaitCallback(Game.Resolve), (object)reply);
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(navigator.gameInstance.Resolve), (object)reply);    //parse the message from the 
                 }
             }
         }
@@ -80,17 +80,18 @@ public class Client
                 if (connection.Connected)
                     connection.Close();
             if (errorOcurred)
-                this.Listen();
+                Debug.Log("Error occured while listening! \n ");
+            //this.Listen();
         }
     }
 
     void OnApplicationQuit()
     {
-        outSocket.Close();
+        outSocket.Close();      // closing the socket when exit
         outSocket = null;
     }
 
-    public void Send(string msgData)
+    public void Send(string msgData)     // send message to the server
     {
         Connect();
         if (this.outSocket == null)
