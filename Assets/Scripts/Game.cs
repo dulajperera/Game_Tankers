@@ -7,48 +7,49 @@ using lk.ac.mrt.cse.pc11.util;
 using System.Threading;
 using Assets.Scripts.bean;
 
+
+
 public class Game {
     #region Variables
-
-    private  volatile List<Player> playerList;
-    private static volatile List<string> playerIPList;
-    private static volatile List<int> playerPort;
-   
-    //private volatile List<CoinPile> coinPileList;
-    //private volatile List<CoinPile> availableCoinPileList;
-    //private volatile List<CoinPile> disappearCoinPileList;
-    private static int coinPilesToDisclose = -1;
-    private static int nextCoinPileSend = 0;
-    private static volatile List<LifePack> lifePackList;
-    private static volatile List<LifePack> availableLifePackList;
-    private static volatile List<LifePack> disappearLifePackList;
-    private static int lifePacksToDisclose = -1;
-    private static int nextLifePackSend = 0;
-
-    //private static volatile List<CoinPile> plunderCoinPileList;
-
-    private  List<Point> obstacles=new List<Point>();
-    private  List<Point> brickLocations=new List<Point>();
-    private  List<BrickWall> brickWalls= new List<BrickWall>();
-    private  List<Point> water= new List<Point>();
-    private  List<Bullet> activeBullets= new List<Bullet>();
-
-    private int maxPlayerNumber;
-    private int minPlayerNumber = 1;
-    private int mapSize;
-    private string mapDetails;
-    private int obstaclePenalty;
+    // Lists to store game data.
+    private List<Player> playerList=new List<Player>();
+    private List<Point> obstacles=new List<Point>();
+    private List<Point> brickLocations=new List<Point>();
+    private List<BrickWall> brickWalls= new List<BrickWall>();
+    private List<Coin> coins = new List<Coin>();
+    private List<LifePack> lifePacks = new List<LifePack>();
+    private List<Point> water= new List<Point>();
 
     private bool gameStarted = false;
     private bool gameFinished = false;
     private Client client;
 
-    private byte direction; // 0 - ^, 1 - >, 2 - v, 3 - <
-    private Player playerSelf;
-    private Point playerPos=new Point(0,0);
+    Resolver r;
+    private Player playerSelf;              // player instance of current game
 
+    private AI ai;
+
+    public List<Coin> getCoins() {
+
+        return coins;
+    }
+    
+    public List<Point> getWater()
+    {
+        return water;
+    }
+    public List<Point> getStones()
+    {
+        return obstacles;
+    }
+
+
+    //getters and setters for variables.
     public List<Point> getWaterCoor() {
         return this.water;
+    }
+    public List<Player> getPlayerList() {
+        return this.playerList;
     }
     public List<Point> getStoneCoor()
     {
@@ -64,6 +65,14 @@ public class Game {
     }
     public void addWater(Point loc) {
         water.Add(loc);
+    }
+    public void addCoin(Point loc,int sec)
+    {
+        coins.Add(new Coin(loc, sec));
+    }
+    public void addLifePack(Point loc, int sec)
+    {
+        lifePacks.Add(new LifePack(loc, sec));
     }
     public void addStones(Point loc) {
         obstacles.Add(loc);
@@ -93,13 +102,15 @@ public class Game {
         return player;
     }
     #endregion
-    public  void changeDirection(byte d) {
-        direction = d;
-    }
+
     public  Point PlayerPos
     {
         get { return playerSelf.CurrentP; }
-        set { playerSelf.CurrentP = value; }
+        set {
+
+            playerSelf.CurrentP = value;
+
+        }
     }
     public  Player PlayerSelf
     {
@@ -124,24 +135,34 @@ public class Game {
     {
         gameFinished = true;
     }
-    public void startGame() {
+    public void startGame(bool isDebug) {
         if (client == null)
         {
             GameFinished = false;
             client = new Client();
+            ai = new AI(this);
 
             new Thread(client.Listen).Start();
+            //new Thread(ai.goNextPosition).Start();
+            ThreadPool.QueueUserWorkItem(new WaitCallback(ai.goNextPosition), (object)"");
+
+
             navigator.gameInstance = this;
             Debug.Log("Game started");
+            if (!isDebug) {
+                //GetClient.Send("JOIN#");
+            }
         }
     }
 
-    public static void Resolve(object stateInfo)
+    public void Resolve(object stateInfo)
     {
         string x = (string)stateInfo;
-        Debug.Log(x);
-
+        if (this.r == null) {
+           this.r = new Resolver();
+        }
+        //Debug.Log(x);           //echos server reply.
+        r.parseMsg(x, navigator.gameInstance);           //sends reply to parser.
     }
 
-    // Use this for initialization
 }

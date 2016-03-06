@@ -7,7 +7,7 @@ using lk.ac.mrt.cse.pc11;
 
 namespace Assets.Scripts.bean
 {
-    class Bullet
+    public class Bullet
     {
         Player shooter;
         int[] dirData = new Int32[2];

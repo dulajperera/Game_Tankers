@@ -8,21 +8,21 @@ using System.Text;
 namespace Assets.Scripts.bean
 {   
     //Coicider merging with the parent
-    public class LifePack
+   public class Coin
     {
         Point pos;
         int seconds;
-        public int Seconds
-        {
-            get { return seconds; }
-            set { seconds = value; }
-        }
         public Point Pos
         {
             get { return pos; }
             set { pos = value; }
         }
-        public LifePack(Point position,int sec)
+        public int Seconds
+        {
+            get { return seconds; }
+            set { seconds = value; }
+        }
+        public Coin(Point position,int sec)
         {
             pos = position;
             seconds = sec;
